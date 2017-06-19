@@ -1,4 +1,22 @@
 # Author: Ryan Lanese
+from sys import argv
+
+USAGE_TEXT = """
+USAGE:
+
+pprettifier [-f|-t] [style.css|RAW INPUT]
+
+"""
+
+"""
+Args error
+"""
+class InvalidArgumentsError(Exception):
+
+    def __init__(self):
+        super(
+            InvalidArgumentsError, self
+        ).__init__("Invalid arguments!")
 
 """
 Prettifier
@@ -16,8 +34,15 @@ class Prettifier(object):
         return rules
 
 def main():
-    #style_sheet = '/file/path/style.css'
-    prettifier = Prettifier(style_sheet)
+    style_sheet = '/path/to/style.css'
+    #prettifier = Prettifier(style_sheet)
 
 if __name__ == "__main__":
+    error_conditions = [
+        (len(argv) < 3),
+        (argv[1] != '-f' and argv[1] != '-t')
+    ]
+    if True in error_conditions:
+        print USAGE_TEXT
+        raise InvalidArgumentsError()
     main()
