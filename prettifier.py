@@ -36,10 +36,12 @@ Prettifier
 class Prettifier(object):
 
     def __init__(self, file, extra=False):
+        self.file = file
         self.parser = tc.make_parser()
         self.styles = self.build_struct(
-            self.load_file(file)
+            self.load_file()
         )
+        self.order_struct()
 
     def build_struct(self, rules):
         styles = []
@@ -58,16 +60,34 @@ class Prettifier(object):
             )
         return styles
 
-    def load_file(self, file):
-        with open(file) as f:
+    def load_file(self):
+        with open(self.file) as f:
             lines = f.read()
             rules = self.parser.parse_stylesheet(lines)
         if len(rules.errors) > 0:
             raise InvalidStylesheetError
         return rules
 
+    def order_struct(self):
+        for i, s in enumerate(self.styles):
+            decs = self.styles[i]['declarations']
+            temp = sorted(decs, key=lambda x: len(x['declaration']))
+            self.styles[i]['declarations'] = temp
+
+    def prettify_sheet(self):
+        with open(self.file, 'r+') as f:
+            f.seek(0)
+            for style in self.styles:
+                f.write("%s {\n" % style['selector'])
+                for declaration in style['declarations']:
+                    f.write("  %s;\n" % declaration['declaration'])
+                f.write("}\n\n")
+            f.truncate()
+            f.close()
+
 def main():
     prettifier = Prettifier(argv[2])
+    prettifier.prettify_sheet()
 
 if __name__ == "__main__":
     error_conditions = [
